@@ -1,16 +1,18 @@
 package org.example;
 
-import java.util.UUID;
+import com.github.javafaker.Faker;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Cashier implements Runnable {
 
     private final String cashierName;
-
-
-    // add more fields if needed
+    private final BlockingQueue<Order> orderQueue;
 
     public Cashier(String cashierName) {
         this.cashierName = cashierName;
+        this.orderQueue = new LinkedBlockingQueue<>();
     }
 
     @Override
@@ -19,12 +21,25 @@ public class Cashier implements Runnable {
     }
 
     private void placeOrder() {
-        // Generate a random order at a certain interval.
-        // You can use faker library to generate name of the customer
-        // You can use Math.Random to switch between different type of coffees
+        Faker faker = new Faker();
+        CoffeeType[] coffeeTypes = CoffeeType.values();
 
+        while (true) {
+            try {
+                Thread.sleep(2000); // Simulating time between orders
+                String customerName = faker.name().firstName();
+                CoffeeType coffeeType = coffeeTypes[(int) (Math.random() * coffeeTypes.length)];
+                Order order = new Order(customerName, coffeeType);
 
-        // Print the order details to the console after submission
-        // example Thread-2 cashierName: Order id abc (Latte) is accepted for John
+                orderQueue.put(order);
+
+                System.out.println(Thread.currentThread().getName() +
+                        " " + cashierName + ": Order id " + order.getId() +
+                        " (" + order.getCoffeeType() + ") is accepted for " +
+                        order.getName());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

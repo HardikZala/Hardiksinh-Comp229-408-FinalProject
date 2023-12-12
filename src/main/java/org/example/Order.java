@@ -13,4 +13,16 @@ public class Order {
         this.name = name;
         this.coffeeType = coffeeType;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public CoffeeType getCoffeeType() {
+        return coffeeType;
+    }
 }

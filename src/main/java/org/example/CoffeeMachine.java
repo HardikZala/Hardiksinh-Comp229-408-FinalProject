@@ -1,17 +1,17 @@
 package org.example;
 
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CoffeeMachine implements Runnable {
 
-    public final String machineName;
-    // Add more fields if needed
-
+    private final String machineName;
+    private final BlockingQueue<Order> orderQueue;
 
     public CoffeeMachine(String machineName) {
         this.machineName = machineName;
+        this.orderQueue = new LinkedBlockingQueue<>();
     }
-
 
     @Override
     public void run() {
@@ -19,12 +19,35 @@ public class CoffeeMachine implements Runnable {
     }
 
     private void brewCoffee() {
-        // Add brewing logic here according to the coffee type in the order
-        // Use different Thread.sleep time for each type of coffee,
-        // any time is fine as long as it is different
+        while (true) {
+            try {
+                Order order = orderQueue.take();
 
-        // print the order details the coffee is ready
-        // example "Thread-5 machineName order id abc (Latte) for John is ready for pickup
+                int brewingTime;
+                switch (order.getCoffeeType()) {
+                    case ESPRESSO:
+                        brewingTime = 2000;
+                        break;
+                    case LATTE:
+                        brewingTime = 3000;
+                        break;
+                    case MOCHA:
+                        brewingTime = 4000;
+                        break;
+                    default:
+                        brewingTime = 2000;
+                        break;
+                }
+
+                Thread.sleep(brewingTime);
+
+                System.out.println(Thread.currentThread().getName() +
+                        " " + machineName + ": Order id " + order.getId() +
+                        " (" + order.getCoffeeType() + ") for " +
+                        order.getName() + " is ready for pickup");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
-
